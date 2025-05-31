@@ -1,0 +1,11 @@
+.idea
+.venv
+**/__pycache__
+**/.ipynb_checkpoints
+*.egg-info/
+*.pyc
+build/
+dist/
+site/
+.all_objects.cache
+.pymon
