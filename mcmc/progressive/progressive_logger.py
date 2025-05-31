@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 
-from ..logging import AbstractLogger
+from ..mylogging import AbstractLogger
 
 
 class ProgressiveLogger(AbstractLogger):
@@ -21,4 +21,10 @@ class ProgressiveLogger(AbstractLogger):
             f"{method_name}: acc: {best_acc:.4},{acc_top_str}"
             f" energy: {best_energy:.3e}, w2: {best_w2:.3e}"
         )
+        if ("avg_accepted" in method_dict) and (method_dict["avg_accepted"] is not None):
+            str_out += f", avg accepted: {method_dict['avg_accepted']:.3f}"
+        if ("avg_rejected" in method_dict) and (method_dict["avg_rejected"] is not None):
+            str_out += f", avg rejected: {method_dict['avg_rejected']:.3f}"
+        if ("wall_time" in method_dict) and (method_dict["wall_time"] is not None):
+            str_out += f", wall time: {method_dict['wall_time']:.3f}s"
         return str_out

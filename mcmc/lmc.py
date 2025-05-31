@@ -299,16 +299,18 @@ def run_simple_lmc(
     xs_mcmc = jtu.tree_map(
         lambda x: jnp.nan_to_num(x, nan=0, posinf=0, neginf=0), xs_mcmc
     )
+    avg_accepted = jnp.mean(sols_mcmc.stats["num_accepted_steps"])
+    avg_rejected = jnp.mean(sols_mcmc.stats["num_rejected_steps"])
     print(
-        f"avg accepted: {jnp.mean(sols_mcmc.stats['num_accepted_steps']):.2f},"
-        f" avg rejected: {jnp.mean(sols_mcmc.stats['num_rejected_steps']):.2f}"
+        f"avg accepted: {avg_accepted:.2f},"
+        f" avg rejected: {avg_rejected:.2f}"
     )
 
     cumulative_evals = steps_mult * sols_mcmc.num_steps_running
     assert cumulative_evals.shape == (num_particles, chain_len)
     cumulative_evals = jnp.mean(cumulative_evals, axis=0)
 
-    return xs_mcmc, cumulative_evals
+    return xs_mcmc, cumulative_evals, avg_accepted, avg_rejected
 
 
 def run_simple_lmc_numpyro(

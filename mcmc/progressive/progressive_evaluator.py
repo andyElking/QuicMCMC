@@ -46,6 +46,8 @@ class AbstractProgressiveEvaluator(AbstractEvaluator):
     def eval(self, samples, aux_output, ground_truth, config, model, key):
         cumulative_evals = aux_output["cumulative_evals"]
         wall_time = aux_output["wall_time"]
+        avg_accepted = aux_output.get("avg_accepted", 0.0)
+        avg_rejected = aux_output.get("avg_rejected", 0.0)
         samples = self.preprocess_samples(samples, config)
 
         num_chains, chain_len = jtu.tree_leaves(samples)[0].shape[:2]
@@ -97,6 +99,8 @@ class AbstractProgressiveEvaluator(AbstractEvaluator):
         result_dict = {
             "cumulative_evals": cumulative_evals,
             "wall_time": wall_time,
+            "avg_accepted": avg_accepted,
+            "avg_rejected": avg_rejected,
         }
         for key, value in vec_dict.items():
             result_dict[key] = value

@@ -63,8 +63,8 @@ def get_model_and_data(data, name):
 def get_uci_data(name):
     x = np.load(f"mcmc_data/{name}_x.npy")
     labels = np.load(f"mcmc_data/{name}_y.npy")
-    labels = jnp.array(labels, dtype=jnp.float64)
-    x = jnp.array(x, dtype=jnp.float64)
+    labels = jnp.array(labels, dtype=jnp.float32)
+    x = jnp.array(x, dtype=jnp.float32)
     data_dim = x.shape[1]
     x_train, labels_train, x_test, labels_test = train_test_split(x, labels, 700)
     print(

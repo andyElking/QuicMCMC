@@ -11,7 +11,6 @@ import scipy
 from numpyro.infer import MCMC, NUTS, Predictive  # noqa: F401
 
 from mcmc.experiment_main import run_experiment
-from mcmc.lmc import run_simple_lmc_numpyro  # noqa: F401
 from mcmc.logreg_utils import eval_gt_logreg, get_gt_logreg, get_model_and_data
 from mcmc.metrics import adjust_max_len
 from mcmc.progressive import (
@@ -26,7 +25,6 @@ from mcmc.progressive.progressive_plotting import make_figs
 warnings.simplefilter("ignore", FutureWarning)
 
 jnp.set_printoptions(precision=3, suppress=True, threshold=sys.maxsize)
-jax.config.update("jax_enable_x64", True)
 print(jax.devices("cuda"))
 
 dataset = scipy.io.loadmat("mcmc_data/benchmarks.mat")
@@ -50,8 +48,12 @@ names = [
 
 
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-prev_result_quic = lambda name: f"progressive_results/good_results/{name}_*.pkl"
-prev_result_nuts = lambda name: f"progressive_results/good_results/{name}_*.pkl"
+prev_result_quic = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
+prev_result_quic_adap = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
+prev_result_nuts = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
+prev_results_ubu = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
+# prev_result_quic = lambda name: f"progressive_results/good_results/{name}_*.pkl"
+# prev_result_nuts = lambda name: f"progressive_results/good_results/{name}_*.pkl"
 
 evaluator = ProgressiveEvaluator()
 logger = ProgressiveLogger(log_filename=f"progressive_results/log_{timestamp}.txt")
@@ -65,7 +67,7 @@ nuts = ProgressiveNUTS(
     nuts_warmup,
     nuts_len,
     prior_start=PRIOR_START,
-    get_previous_result_filename=prev_result_nuts,
+    # get_previous_result_filename=prev_result_nuts,
 )
 
 get_result_filename = (
@@ -77,9 +79,9 @@ def make_pid(atol, dt0):
     return diffrax.PIDController(
         atol=atol,
         rtol=0.0,
-        dtmax=0.5,
-        dtmin=dt0 / 10,
-        pcoeff=0.1,
+        dtmax=dt0 * 5,
+        dtmin=dt0 / 5,
+        pcoeff=0.15,
         icoeff=0.4,
     )
 
@@ -89,10 +91,12 @@ quic_kwargs = {
     "chain_sep": 1.0,
     "dt0": 0.07,
     "solver": diffrax.QUICSORT(0.1),
-    "pid": make_pid(0.1, 0.07),
+    "pid": None,
     "prior_start": PRIOR_START,
 }
-quic = ProgressiveLMC(quic_kwargs)
+quic = ProgressiveLMC(
+    quic_kwargs,
+)
 
 quic_adaptive_kwargs = {
     "chain_len": 2**5,
@@ -102,7 +106,10 @@ quic_adaptive_kwargs = {
     "pid": make_pid(0.1, 0.07),
     "prior_start": PRIOR_START,
 }
-quic_adap = ProgressiveLMC(quic_adaptive_kwargs)
+quic_adap = ProgressiveLMC(
+    quic_adaptive_kwargs,
+    # get_previous_result_filename=prev_result_quic_adap,
+)
 
 euler_kwargs = {
     "chain_len": 2**5,
@@ -119,10 +126,12 @@ ubu_kwargs = {
     "chain_sep": 1.0,
     "dt0": 0.035,
     "solver": custom_solvers.UBU(0.1),
-    "pid": make_pid(0.1, 0.07),
+    "pid": None,
     "prior_start": PRIOR_START,
 }
-ubu = ProgressiveLMC(ubu_kwargs)
+ubu = ProgressiveLMC(
+    ubu_kwargs,
+)
 
 methods = [ubu, nuts, quic_adap, quic]
 
@@ -141,7 +150,7 @@ seps = {
     "isolet_ab": 0.5,
 }
 atols = {
-    "flare_solar": 2.0,
+    "flare_solar": 0.01,
 }
 
 
@@ -167,7 +176,7 @@ for name in names:
     euler.lmc_kwargs["pid"] = make_pid(atol, quic_dt0 / 20)
     ubu.lmc_kwargs["dt0"] = quic_dt0 / 2
     ubu.lmc_kwargs["chain_sep"] = chain_sep
-    ubu.lmc_kwargs["pid"] = make_pid(atol, quic_dt0 / 2)
+    ubu.lmc_kwargs["pid"] = None
 
     logger.start_model_section(name)
     quic_atol_str = f"atol={atol}, "

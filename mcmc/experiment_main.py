@@ -4,7 +4,7 @@ from typing import Callable, Optional
 import jax.random as jr
 
 from .evaluation import AbstractEvaluator
-from .logging import AbstractLogger
+from .mylogging import AbstractLogger
 from .methods import AbstractMethod
 
 
@@ -25,10 +25,7 @@ def run_experiment(
     gt = get_gt_fun(model, model_name, model_args, config, key_gt)
     if gt_eval_fun is not None:
         gt_str = gt_eval_fun(gt, config) + "\n"
-    else:
-        gt_str = ""
-
-    logger.print_log(gt_str)
+        logger.print_log(gt_str)
 
     result_dict = {"model_name": model_name}
 
@@ -46,6 +43,8 @@ def run_experiment(
         else:
             method_dict = loaded_dict
         result_dict[method.method_name] = method_dict
+        # print("method dict:")
+        # print(method_dict)
         logger.log_method(method.method_name, method_dict)
 
     if get_result_filename is not None:

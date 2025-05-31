@@ -5,7 +5,7 @@ import jax.tree_util as jtu
 from jax import Array, numpy as jnp, tree_util as jtu
 from numpyro import handlers
 
-from ..logging import AbstractLogger
+from ..mylogging import AbstractLogger
 from ..metrics import compute_energy, compute_w2
 from ..progressive import AbstractProgressiveEvaluator
 
