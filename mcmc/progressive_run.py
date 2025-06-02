@@ -48,10 +48,10 @@ names = [
 
 
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-prev_result_quic = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
-prev_result_quic_adap = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
-prev_result_nuts = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
-prev_results_ubu = lambda name: f"progressive_results/flare_solar_2025-06-01_08-53-28.pkl"
+prev_result_quic = lambda name: f"progressive_results/flare_solar_*.pkl"
+prev_result_quic_adap = lambda name: f"progressive_results/flare_solar_*.pkl"
+prev_result_nuts = lambda name: f"progressive_results/flare_solar_*.pkl"
+prev_results_ubu = lambda name: f"progressive_results/flare_solar_*.pkl"
 # prev_result_quic = lambda name: f"progressive_results/good_results/{name}_*.pkl"
 # prev_result_nuts = lambda name: f"progressive_results/good_results/{name}_*.pkl"
 
@@ -96,6 +96,7 @@ quic_kwargs = {
 }
 quic = ProgressiveLMC(
     quic_kwargs,
+    # get_previous_result_filename=prev_result_quic
 )
 
 quic_adaptive_kwargs = {
@@ -131,6 +132,7 @@ ubu_kwargs = {
 }
 ubu = ProgressiveLMC(
     ubu_kwargs,
+    # get_previous_result_filename=prev_results_ubu,
 )
 
 methods = [ubu, nuts, quic_adap, quic]
@@ -150,14 +152,14 @@ seps = {
     "isolet_ab": 0.5,
 }
 atols = {
-    "flare_solar": 0.01,
+    "flare_solar": 0.5,
 }
 
 
 for name in names:
     model, model_args, test_args = get_model_and_data(dataset, name)
     data_dim = model_args[0].shape[1] + 1
-    num_particles = adjust_max_len(2**14, data_dim)
+    num_particles = adjust_max_len(2**13, data_dim)
     config = {
         "num_particles": num_particles,
         "test_args": test_args,
