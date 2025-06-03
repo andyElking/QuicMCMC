@@ -141,7 +141,6 @@ def run_lmc(
 
         if not isinstance(solver, diffrax.ShARK):
             solver = HalfSolver(solver)
-            steps_mult *= 3
     else:
         assert pid_warmup is None
         controller_warmup = ConstantStepSize()
@@ -207,7 +206,7 @@ def run_lmc(
 
     avg_steps_warmup = jnp.mean(steps_warmup)
     avg_steps_mcmc = jnp.mean(steps_mcmc)
-    grad_evals_per_sample = (avg_steps_mcmc + avg_steps_warmup) / chain_len
+    grad_evals_per_sample = steps_mult * (avg_steps_mcmc + avg_steps_warmup) / chain_len
 
     return xs_mcmc, grad_evals_per_sample
 
@@ -263,7 +262,6 @@ def run_simple_lmc(
 
         if not isinstance(solver, diffrax.ShARK):
             solver = HalfSolver(solver)
-            steps_mult *= 3
     else:
         steps_per_sample = int(math.ceil(chain_sep / dt0))
         num_steps = (chain_len - 1) * steps_per_sample + 1
