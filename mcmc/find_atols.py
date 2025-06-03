@@ -45,7 +45,7 @@ logger.start_log(timestamp)
 logger.start_model_section(name)
 model, model_args, test_args = get_model_and_data(dataset, name)
 data_dim = model_args[0].shape[1] + 1
-num_particles = adjust_max_len(2**14, data_dim)
+num_particles = adjust_max_len(2**15, data_dim)
 config = {
     "num_particles": num_particles,
     "test_args": test_args,
@@ -53,7 +53,7 @@ config = {
 
 # prev_result = lambda name: f"progressive_results/good_results/{name}_*.pkl"
 
-pcoeff = 0.15
+pcoeff = 0.1
 icoeff = 0.4
 
 def make_pid(atol, dt0):

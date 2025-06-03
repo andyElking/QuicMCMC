@@ -62,7 +62,7 @@ logger.start_log(timestamp)
 PRIOR_START = False
 
 nuts_warmup = 20
-nuts_len = 2**5
+nuts_len = 2**6
 nuts = ProgressiveNUTS(
     nuts_warmup,
     nuts_len,
@@ -87,7 +87,7 @@ def make_pid(atol, dt0):
 
 
 quic_kwargs = {
-    "chain_len": 2**5,
+    "chain_len": 2**6,
     "chain_sep": 1.0,
     "dt0": 0.07,
     "solver": diffrax.QUICSORT(0.1),
@@ -100,7 +100,7 @@ quic = ProgressiveLMC(
 )
 
 quic_adaptive_kwargs = {
-    "chain_len": 2**5,
+    "chain_len": 2**6,
     "chain_sep": 1.0,
     "dt0": 0.07,
     "solver": diffrax.QUICSORT(0.1),
@@ -113,7 +113,7 @@ quic_adap = ProgressiveLMC(
 )
 
 euler_kwargs = {
-    "chain_len": 2**5,
+    "chain_len": 2**6,
     "chain_sep": 0.5,
     "dt0": 0.03,
     "solver": diffrax.Euler(),
@@ -123,7 +123,7 @@ euler_kwargs = {
 euler = ProgressiveLMC(euler_kwargs)
 
 ubu_kwargs = {
-    "chain_len": 2**5,
+    "chain_len": 2**6,
     "chain_sep": 1.0,
     "dt0": 0.035,
     "solver": custom_solvers.UBU(0.1),
@@ -152,14 +152,19 @@ seps = {
     "isolet_ab": 0.5,
 }
 atols = {
-    "flare_solar": 0.5,
+    "flare_solar": 0.3,
+    "isolet_ab": 50.0,
+    "banana": 0.04,
+    "splice": 0.4,
+    "image": 1.0,
+    "titanic": 0.1,
 }
 
 
 for name in names:
     model, model_args, test_args = get_model_and_data(dataset, name)
     data_dim = model_args[0].shape[1] + 1
-    num_particles = adjust_max_len(2**13, data_dim)
+    num_particles = adjust_max_len(2**15, data_dim)
     config = {
         "num_particles": num_particles,
         "test_args": test_args,

@@ -27,4 +27,6 @@ class ProgressiveLogger(AbstractLogger):
             str_out += f", avg rejected: {method_dict['avg_rejected']:.3f}"
         if ("wall_time" in method_dict) and (method_dict["wall_time"] is not None):
             str_out += f", wall time: {method_dict['wall_time']:.3f}s"
+        if ("cumulative_evals" in method_dict) and (method_dict["cumulative_evals"] is not None):
+            str_out += f", cumulative evals: {method_dict['cumulative_evals']:.3e}"
         return str_out
