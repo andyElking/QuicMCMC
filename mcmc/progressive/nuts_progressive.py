@@ -70,5 +70,5 @@ class ProgressiveNUTS(AbstractMethod):
         steps_nuts = jnp.mean(steps_nuts, axis=0)
         cumulative_evals = jnp.cumsum(steps_nuts)
 
-        aux_output = {"cumulative_evals": cumulative_evals, "wall_time": time_nuts}
+        aux_output = {"cumulative_evals": cumulative_evals, "wall_time": time_nuts, "avg_accepted": jnp.mean(steps_nuts), "avg_rejected": None}
         return samples, aux_output

@@ -89,7 +89,7 @@ logger.print_log(
 )
 
 quic_adaptive_kwargs = {
-    "chain_len": 2**5,
+    "chain_len": 2**6,
     "chain_sep": chain_sep,
     "dt0": dt0,
     "solver": diffrax.QUICSORT(0.1),
@@ -97,7 +97,8 @@ quic_adaptive_kwargs = {
     "prior_start": False,
 }
 
-atols = [0.005 * 2**i for i in range(8)]
+atols = [0.02 * 2**i for i in range(12)]
+atols = atols[::-1]
 
 for atol in atols:
     quic_adaptive_kwargs["pid"] = make_pid(atol, dt0)
@@ -106,7 +107,7 @@ for atol in atols:
     methods = [quic_adap]
 
     run_experiment(
-        jr.key(1),
+        jr.key(3),
         model,
         model_args,
         name,

@@ -30,18 +30,18 @@ print(jax.devices("cuda"))
 dataset = scipy.io.loadmat("mcmc_data/benchmarks.mat")
 names = [
     # "tbp",
-    # "isolet_ab",
-    # "banana",
+    "isolet_ab",
+    "banana",
     # "breast_cancer",
     # "diabetis",
     "flare_solar",
     # "german",
     # "heart",
-    # "image",
+    "image",
     # "ringnorm",
-    # "splice",
+    "splice",
     # "thyroid",
-    # "titanic",
+    "titanic",
     # "twonorm",
     # "waveform",
 ]
@@ -79,9 +79,9 @@ def make_pid(atol, dt0):
     return diffrax.PIDController(
         atol=atol,
         rtol=0.0,
-        dtmax=dt0 * 5,
-        dtmin=dt0 / 5,
-        pcoeff=0.15,
+        dtmax=dt0 * 10,
+        dtmin=dt0 / 10,
+        pcoeff=0.1,
         icoeff=0.4,
     )
 
@@ -135,7 +135,7 @@ ubu = ProgressiveLMC(
     # get_previous_result_filename=prev_results_ubu,
 )
 
-methods = [ubu, nuts, quic_adap, quic]
+methods = [nuts, ubu, quic, quic_adap]
 
 dt0s = {
     "banana": 0.04,
