@@ -31,17 +31,17 @@ dataset = scipy.io.loadmat("mcmc_data/benchmarks.mat")
 names = [
     # "tbp",
     "isolet_ab",
-    "banana",
+    # "banana",
     # "breast_cancer",
     # "diabetis",
-    "flare_solar",
+    # "flare_solar",
     # "german",
     # "heart",
-    "image",
+    # "image",
     # "ringnorm",
-    "splice",
+    # "splice",
     # "thyroid",
-    "titanic",
+    # "titanic",
     # "twonorm",
     # "waveform",
 ]
@@ -62,13 +62,6 @@ logger.start_log(timestamp)
 PRIOR_START = False
 
 nuts_warmup = 20
-nuts_len = 2**6
-nuts = ProgressiveNUTS(
-    nuts_warmup,
-    nuts_len,
-    prior_start=PRIOR_START,
-    # get_previous_result_filename=prev_result_nuts,
-)
 
 get_result_filename = (
     lambda name: f"progressive_results/{name}_{timestamp}.pkl"
@@ -94,12 +87,9 @@ quic_kwargs = {
     "pid": None,
     "prior_start": PRIOR_START,
 }
-quic = ProgressiveLMC(
-    quic_kwargs,
-    # get_previous_result_filename=prev_result_quic
-)
 
-quic_adaptive_kwargs = {
+
+quic_adap_kwargs = {
     "chain_len": 2**6,
     "chain_sep": 1.0,
     "dt0": 0.07,
@@ -107,10 +97,7 @@ quic_adaptive_kwargs = {
     "pid": make_pid(0.1, 0.07),
     "prior_start": PRIOR_START,
 }
-quic_adap = ProgressiveLMC(
-    quic_adaptive_kwargs,
-    # get_previous_result_filename=prev_result_quic_adap,
-)
+
 
 euler_kwargs = {
     "chain_len": 2**6,
@@ -130,12 +117,6 @@ ubu_kwargs = {
     "pid": None,
     "prior_start": PRIOR_START,
 }
-ubu = ProgressiveLMC(
-    ubu_kwargs,
-    # get_previous_result_filename=prev_results_ubu,
-)
-
-methods = [nuts, ubu, quic, quic_adap]
 
 dt0s = {
     "banana": 0.04,
@@ -149,7 +130,7 @@ seps = {
     "flare_solar": 3.0,
     "image": 1.0,
     "waveform": 1.0,
-    "isolet_ab": 0.5,
+    "isolet_ab": 0.2,
 }
 atols = {
     "flare_solar": 0.3,
@@ -170,20 +151,49 @@ for name in names:
         "test_args": test_args,
     }
 
+    # NUTS settings
+    nuts_len = 1000 * 2**5 if name == "isolet_ab" else 2**6
+    nuts = ProgressiveNUTS(
+        nuts_warmup,
+        nuts_len,
+        prior_start=PRIOR_START,
+        # get_previous_result_filename=prev_result_nuts,
+    )
+
     # LMC settings
     quic_dt0 = dt0s.get(name, 0.07)
     chain_sep = seps.get(name, 0.5)
     atol = atols.get(name, 1.0)
-    quic.lmc_kwargs["dt0"], quic.lmc_kwargs["chain_sep"] = quic_dt0, chain_sep
-    quic.lmc_kwargs["pid"] = None
-    quic_adap.lmc_kwargs["dt0"], quic.lmc_kwargs["chain_sep"] = quic_dt0, chain_sep
-    quic_adap.lmc_kwargs["pid"] = make_pid(atol, quic_dt0)
-    euler.lmc_kwargs["dt0"] = quic_dt0 / 20
-    euler.lmc_kwargs["chain_sep"] = chain_sep
-    euler.lmc_kwargs["pid"] = make_pid(atol, quic_dt0 / 20)
-    ubu.lmc_kwargs["dt0"] = quic_dt0 / 2
-    ubu.lmc_kwargs["chain_sep"] = chain_sep
-    ubu.lmc_kwargs["pid"] = None
+    quic_kwargs["dt0"], quic_kwargs["chain_sep"] = quic_dt0, chain_sep
+    quic_kwargs["pid"] = None
+    quic_adap_kwargs["dt0"], quic_kwargs["chain_sep"] = quic_dt0, chain_sep
+    quic_adap_kwargs["pid"] = make_pid(atol, quic_dt0)
+    euler_kwargs["dt0"] = quic_dt0 / 20
+    euler_kwargs["chain_sep"] = chain_sep
+    euler_kwargs["pid"] = make_pid(atol, quic_dt0 / 20)
+    ubu_kwargs["dt0"] = quic_dt0 / 2
+    ubu_kwargs["chain_sep"] = chain_sep
+    ubu_kwargs["pid"] = None
+
+    quic = ProgressiveLMC(
+        quic_kwargs,
+        # get_previous_result_filename=prev_result_quic
+    )
+    quic_adap = ProgressiveLMC(
+        quic_adap_kwargs,
+        # get_previous_result_filename=prev_result_quic_adap,
+    )
+    ubu = ProgressiveLMC(
+        ubu_kwargs,
+        # get_previous_result_filename=prev_results_ubu,
+    )
+
+    methods = [
+        nuts,
+        # ubu,
+        # quic,
+        # quic_adap,
+    ]
 
     logger.start_model_section(name)
     quic_atol_str = f"atol={atol}, "
