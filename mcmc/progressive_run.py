@@ -141,6 +141,10 @@ atols = {
     "titanic": 0.1,
 }
 
+nuts_lens = {
+    "isolet_ab": 1000 * 2**5,
+    "flare_solar": 2**8,
+}
 
 for name in names:
     model, model_args, test_args = get_model_and_data(dataset, name)
@@ -152,7 +156,7 @@ for name in names:
     }
 
     # NUTS settings
-    nuts_len = 1000 * 2**5 if name == "isolet_ab" else 2**6
+    nuts_len = nuts_lens.get(name, 2**6)
     nuts = ProgressiveNUTS(
         nuts_warmup,
         nuts_len,
