@@ -30,11 +30,11 @@ print(jax.devices("cuda"))
 dataset = scipy.io.loadmat("mcmc_data/benchmarks.mat")
 names = [
     # "tbp",
-    "isolet_ab",
+    # "isolet_ab",
     # "banana",
     # "breast_cancer",
     # "diabetis",
-    # "flare_solar",
+    "flare_solar",
     # "german",
     # "heart",
     # "image",
@@ -121,7 +121,7 @@ ubu_kwargs = {
 dt0s = {
     "banana": 0.04,
     "splice": 0.01,
-    "flare_solar": 0.1,
+    "flare_solar": 0.05,
     "isolet_ab": 0.001,
 }
 seps = {
@@ -141,18 +141,23 @@ atols = {
     "titanic": 0.1,
 }
 
+nuts_lens = {
+    "isolet_ab": 1000 * 2**4,
+    "flare_solar": 2**8,
+}
 
 for name in names:
     model, model_args, test_args = get_model_and_data(dataset, name)
     data_dim = model_args[0].shape[1] + 1
-    num_particles = adjust_max_len(2**15, data_dim)
+    num_particles = 2**15 if name=="isolet_ab" else 2**15
+    num_particles = adjust_max_len(num_particles, data_dim)
     config = {
         "num_particles": num_particles,
         "test_args": test_args,
     }
 
     # NUTS settings
-    nuts_len = 1000 * 2**5 if name == "isolet_ab" else 2**6
+    nuts_len = nuts_lens.get(name, 2**6)
     nuts = ProgressiveNUTS(
         nuts_warmup,
         nuts_len,
@@ -166,7 +171,7 @@ for name in names:
     atol = atols.get(name, 1.0)
     quic_kwargs["dt0"], quic_kwargs["chain_sep"] = quic_dt0, chain_sep
     quic_kwargs["pid"] = None
-    quic_adap_kwargs["dt0"], quic_kwargs["chain_sep"] = quic_dt0, chain_sep
+    quic_adap_kwargs["dt0"], quic_adap_kwargs["chain_sep"] = quic_dt0, chain_sep
     quic_adap_kwargs["pid"] = make_pid(atol, quic_dt0)
     euler_kwargs["dt0"] = quic_dt0 / 20
     euler_kwargs["chain_sep"] = chain_sep
@@ -190,9 +195,9 @@ for name in names:
 
     methods = [
         nuts,
-        # ubu,
-        # quic,
-        # quic_adap,
+        ubu,
+        quic,
+        quic_adap,
     ]
 
     logger.start_model_section(name)
