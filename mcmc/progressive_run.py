@@ -142,7 +142,7 @@ atols = {
 }
 
 nuts_lens = {
-    "isolet_ab": 1000 * 2**5,
+    "isolet_ab": 2**6,
     "flare_solar": 2**8,
 }
 
@@ -168,7 +168,7 @@ for name in names:
     # LMC settings
     quic_dt0 = dt0s.get(name, 0.07)
     chain_sep = seps.get(name, 0.5)
-    atol = atols.get(name, 1.0)
+    atol = atols.get(name, 0.1)
     quic_kwargs["dt0"], quic_kwargs["chain_sep"] = quic_dt0, chain_sep
     quic_kwargs["pid"] = None
     quic_adap_kwargs["dt0"], quic_adap_kwargs["chain_sep"] = quic_dt0, chain_sep

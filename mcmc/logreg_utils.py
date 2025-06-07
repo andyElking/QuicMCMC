@@ -78,12 +78,12 @@ def get_gt_logreg(model, model_name, model_args, config, key):
     filename = f"ground_truth/{model_name}_ground_truth.npy"
     # if ground_truth is not computed, compute it
     if not os.path.exists(filename):
-        num_chains = 2**3
+        num_chains = 2**7
         key_run, key_perm = jr.split(key, 2)
         gt_nuts = MCMC(
             NUTS(model),
-            num_warmup=2**10,
-            num_samples=2**13,
+            num_warmup=2**9,
+            num_samples=2**9,
             num_chains=num_chains,
             chain_method="vectorized",
         )
